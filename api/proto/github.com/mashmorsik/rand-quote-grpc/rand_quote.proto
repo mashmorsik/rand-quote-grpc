@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package github.com.mashmorsik.rand.quote.grpc.v1;
+
+option go_package = "github.com/mashmorsik/rand-quote-grpc;randquotev1";
+
+service RandQuotes {
+  rpc GetQuote(RandQuoteRequest) returns (RandQuoteResponse);
+}
+
+message RandQuoteRequest {
+  string name = 1;
+}
+
+message RandQuoteResponse {
+  string quote = 1;
+}
