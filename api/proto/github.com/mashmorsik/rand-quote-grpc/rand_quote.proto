@@ -4,12 +4,31 @@ package github.com.mashmorsik.rand.quote.grpc.v1;
 
 option go_package = "github.com/mashmorsik/rand-quote-grpc;randquotev1";
 
+enum Name {
+  NAME_ALBUS_DUMBLEDORE = 0;
+  NAME_HERMIONE_GRANGER = 1;
+  NAME_RON_WEASLEY = 2;
+  NAME_SEVERUS_SNAPE = 3;
+  NAME_PROFESSOR_MCGONAGALL = 4;
+  NAME_LUNA_LOVEGOOD = 5;
+  NAME_HAGRID = 6;
+}
+
 service RandQuotes {
   rpc GetQuote(RandQuoteRequest) returns (RandQuoteResponse);
+  rpc ListQuotes(ListQuotesRequest) returns (stream ListQuotesResponse) {};
+}
+
+message ListQuotesRequest {
+  Name name = 1;
+}
+
+message ListQuotesResponse {
+  string quotes = 1;
 }
 
 message RandQuoteRequest {
-  string name = 1;
+  Name name = 1;
 }
 
 message RandQuoteResponse {
