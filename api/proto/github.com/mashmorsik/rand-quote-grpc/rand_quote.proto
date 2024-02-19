@@ -5,18 +5,41 @@ package github.com.mashmorsik.rand.quote.grpc.v1;
 option go_package = "github.com/mashmorsik/rand-quote-grpc;randquotev1";
 
 enum Name {
-  NAME_ALBUS_DUMBLEDORE = 0;
-  NAME_HERMIONE_GRANGER = 1;
-  NAME_RON_WEASLEY = 2;
-  NAME_SEVERUS_SNAPE = 3;
-  NAME_PROFESSOR_MCGONAGALL = 4;
-  NAME_LUNA_LOVEGOOD = 5;
-  NAME_HAGRID = 6;
+  ALBUS_DUMBLEDORE = 0;
+  HERMIONE_GRANGER = 1;
+  RON_WEASLEY = 2;
+  SEVERUS_SNAPE = 3;
+  PROFESSOR_MCGONAGALL = 4;
+  LUNA_LOVEGOOD = 5;
+  HAGRID = 6;
+  CLOSE_CONNECTION = 7;
+}
+
+message Quote {
+  string quote = 1;
 }
 
 service RandQuotes {
   rpc GetQuote(RandQuoteRequest) returns (RandQuoteResponse);
   rpc ListQuotes(ListQuotesRequest) returns (stream ListQuotesResponse) {};
+  rpc GetSeveralCharactersQuotes(stream SeveralCharactersQuotesRequest) returns (SeveralCharacterQuotesResponse) {};
+  rpc QuotesChat(stream QuotesChatRequest) returns (stream QuotesChatResponse) {};
+}
+
+message QuotesChatRequest {
+  Name name = 1;
+}
+
+message QuotesChatResponse {
+  string quote = 1;
+}
+
+message SeveralCharactersQuotesRequest {
+  Name name = 1;
+}
+
+message SeveralCharacterQuotesResponse {
+  map<string, string> quotes = 1;
 }
 
 message ListQuotesRequest {
@@ -24,7 +47,7 @@ message ListQuotesRequest {
 }
 
 message ListQuotesResponse {
-  string quotes = 1;
+  string quote = 1;
 }
 
 message RandQuoteRequest {

@@ -19,8 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	RandQuotes_GetQuote_FullMethodName   = "/github.com.mashmorsik.rand.quote.grpc.v1.RandQuotes/GetQuote"
-	RandQuotes_ListQuotes_FullMethodName = "/github.com.mashmorsik.rand.quote.grpc.v1.RandQuotes/ListQuotes"
+	RandQuotes_GetQuote_FullMethodName                   = "/github.com.mashmorsik.rand.quote.grpc.v1.RandQuotes/GetQuote"
+	RandQuotes_ListQuotes_FullMethodName                 = "/github.com.mashmorsik.rand.quote.grpc.v1.RandQuotes/ListQuotes"
+	RandQuotes_GetSeveralCharactersQuotes_FullMethodName = "/github.com.mashmorsik.rand.quote.grpc.v1.RandQuotes/GetSeveralCharactersQuotes"
+	RandQuotes_QuotesChat_FullMethodName                 = "/github.com.mashmorsik.rand.quote.grpc.v1.RandQuotes/QuotesChat"
 )
 
 // RandQuotesClient is the client API for RandQuotes service.
@@ -29,6 +31,8 @@ const (
 type RandQuotesClient interface {
 	GetQuote(ctx context.Context, in *RandQuoteRequest, opts ...grpc.CallOption) (*RandQuoteResponse, error)
 	ListQuotes(ctx context.Context, in *ListQuotesRequest, opts ...grpc.CallOption) (RandQuotes_ListQuotesClient, error)
+	GetSeveralCharactersQuotes(ctx context.Context, opts ...grpc.CallOption) (RandQuotes_GetSeveralCharactersQuotesClient, error)
+	QuotesChat(ctx context.Context, opts ...grpc.CallOption) (RandQuotes_QuotesChatClient, error)
 }
 
 type randQuotesClient struct {
@@ -80,12 +84,79 @@ func (x *randQuotesListQuotesClient) Recv() (*ListQuotesResponse, error) {
 	return m, nil
 }
 
+func (c *randQuotesClient) GetSeveralCharactersQuotes(ctx context.Context, opts ...grpc.CallOption) (RandQuotes_GetSeveralCharactersQuotesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &RandQuotes_ServiceDesc.Streams[1], RandQuotes_GetSeveralCharactersQuotes_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &randQuotesGetSeveralCharactersQuotesClient{stream}
+	return x, nil
+}
+
+type RandQuotes_GetSeveralCharactersQuotesClient interface {
+	Send(*SeveralCharactersQuotesRequest) error
+	CloseAndRecv() (*SeveralCharacterQuotesResponse, error)
+	grpc.ClientStream
+}
+
+type randQuotesGetSeveralCharactersQuotesClient struct {
+	grpc.ClientStream
+}
+
+func (x *randQuotesGetSeveralCharactersQuotesClient) Send(m *SeveralCharactersQuotesRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *randQuotesGetSeveralCharactersQuotesClient) CloseAndRecv() (*SeveralCharacterQuotesResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(SeveralCharacterQuotesResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *randQuotesClient) QuotesChat(ctx context.Context, opts ...grpc.CallOption) (RandQuotes_QuotesChatClient, error) {
+	stream, err := c.cc.NewStream(ctx, &RandQuotes_ServiceDesc.Streams[2], RandQuotes_QuotesChat_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &randQuotesQuotesChatClient{stream}
+	return x, nil
+}
+
+type RandQuotes_QuotesChatClient interface {
+	Send(*QuotesChatRequest) error
+	Recv() (*QuotesChatResponse, error)
+	grpc.ClientStream
+}
+
+type randQuotesQuotesChatClient struct {
+	grpc.ClientStream
+}
+
+func (x *randQuotesQuotesChatClient) Send(m *QuotesChatRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *randQuotesQuotesChatClient) Recv() (*QuotesChatResponse, error) {
+	m := new(QuotesChatResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // RandQuotesServer is the server API for RandQuotes service.
 // All implementations must embed UnimplementedRandQuotesServer
 // for forward compatibility
 type RandQuotesServer interface {
 	GetQuote(context.Context, *RandQuoteRequest) (*RandQuoteResponse, error)
 	ListQuotes(*ListQuotesRequest, RandQuotes_ListQuotesServer) error
+	GetSeveralCharactersQuotes(RandQuotes_GetSeveralCharactersQuotesServer) error
+	QuotesChat(RandQuotes_QuotesChatServer) error
 	mustEmbedUnimplementedRandQuotesServer()
 }
 
@@ -98,6 +169,12 @@ func (UnimplementedRandQuotesServer) GetQuote(context.Context, *RandQuoteRequest
 }
 func (UnimplementedRandQuotesServer) ListQuotes(*ListQuotesRequest, RandQuotes_ListQuotesServer) error {
 	return status.Errorf(codes.Unimplemented, "method ListQuotes not implemented")
+}
+func (UnimplementedRandQuotesServer) GetSeveralCharactersQuotes(RandQuotes_GetSeveralCharactersQuotesServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetSeveralCharactersQuotes not implemented")
+}
+func (UnimplementedRandQuotesServer) QuotesChat(RandQuotes_QuotesChatServer) error {
+	return status.Errorf(codes.Unimplemented, "method QuotesChat not implemented")
 }
 func (UnimplementedRandQuotesServer) mustEmbedUnimplementedRandQuotesServer() {}
 
@@ -151,6 +228,58 @@ func (x *randQuotesListQuotesServer) Send(m *ListQuotesResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _RandQuotes_GetSeveralCharactersQuotes_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(RandQuotesServer).GetSeveralCharactersQuotes(&randQuotesGetSeveralCharactersQuotesServer{stream})
+}
+
+type RandQuotes_GetSeveralCharactersQuotesServer interface {
+	SendAndClose(*SeveralCharacterQuotesResponse) error
+	Recv() (*SeveralCharactersQuotesRequest, error)
+	grpc.ServerStream
+}
+
+type randQuotesGetSeveralCharactersQuotesServer struct {
+	grpc.ServerStream
+}
+
+func (x *randQuotesGetSeveralCharactersQuotesServer) SendAndClose(m *SeveralCharacterQuotesResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *randQuotesGetSeveralCharactersQuotesServer) Recv() (*SeveralCharactersQuotesRequest, error) {
+	m := new(SeveralCharactersQuotesRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _RandQuotes_QuotesChat_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(RandQuotesServer).QuotesChat(&randQuotesQuotesChatServer{stream})
+}
+
+type RandQuotes_QuotesChatServer interface {
+	Send(*QuotesChatResponse) error
+	Recv() (*QuotesChatRequest, error)
+	grpc.ServerStream
+}
+
+type randQuotesQuotesChatServer struct {
+	grpc.ServerStream
+}
+
+func (x *randQuotesQuotesChatServer) Send(m *QuotesChatResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *randQuotesQuotesChatServer) Recv() (*QuotesChatRequest, error) {
+	m := new(QuotesChatRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // RandQuotes_ServiceDesc is the grpc.ServiceDesc for RandQuotes service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -168,6 +297,17 @@ var RandQuotes_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "ListQuotes",
 			Handler:       _RandQuotes_ListQuotes_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "GetSeveralCharactersQuotes",
+			Handler:       _RandQuotes_GetSeveralCharactersQuotes_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "QuotesChat",
+			Handler:       _RandQuotes_QuotesChat_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "rand_quote.proto",
