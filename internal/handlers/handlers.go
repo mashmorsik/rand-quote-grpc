@@ -20,7 +20,7 @@ func (q QuotesServer) GetQuote(ctx context.Context, req *randquotev1.RandQuoteRe
 	}
 
 	name := req.GetName()
-	quote, err := pkg.ReturnQuote(name.String())
+	quote, err := pkg.ReturnQuote(name)
 	if err != nil {
 		return nil, fmt.Errorf("can't find quote by %s", name)
 	}
@@ -38,7 +38,7 @@ func (q QuotesServer) ListQuotes(req *randquotev1.ListQuotesRequest, stream rand
 	name := req.GetName()
 	ctx := stream.Context()
 
-	quotes, err := pkg.ReturnQuotesList(name.String())
+	quotes, err := pkg.ReturnQuotesList(name)
 	if err != nil {
 		fmt.Println(fmt.Errorf("can't find quote by %s", name))
 		return fmt.Errorf("can't find quote by %s", name)
@@ -54,16 +54,72 @@ func (q QuotesServer) ListQuotes(req *randquotev1.ListQuotesRequest, stream rand
 			return ctx.Err()
 		}
 
-		err = stream.Send(&randquotev1.ListQuotesResponse{Quotes: quotes[i]})
+		err = stream.Send(&randquotev1.ListQuotesResponse{Quote: quotes[i]})
 		if err != nil {
 			fmt.Println(fmt.Errorf("can't send message: %s to stream", quotes[i]))
 			return fmt.Errorf("can't send message: %s to stream", quotes[i])
 		}
 	}
 
-	err = stream.Send(&randquotev1.ListQuotesResponse{Quotes: "That's it."})
+	err = stream.Send(&randquotev1.ListQuotesResponse{Quote: "That's it."})
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (q QuotesServer) GetSeveralCharactersQuotes(stream randquotev1.RandQuotes_GetSeveralCharactersQuotesServer) error {
+	quotes := make(map[string]string)
+
+	for i := 0; len(quotes) < 3; i++ {
+		name, err := stream.Recv()
+		if err != nil {
+			fmt.Println(fmt.Errorf("can't receive message"))
+			return fmt.Errorf("can't receive message")
+		}
+
+		fmt.Println(name)
+
+		quote, err := pkg.ReturnQuote(name.Name)
+		if err != nil {
+			fmt.Println(fmt.Errorf("can't find quote by %s", name))
+			return fmt.Errorf("can't find quote by %s", name)
+		}
+
+		nameStr, err := pkg.EnumMatcher(name.Name)
+		if err != nil {
+			fmt.Println(fmt.Errorf("can't convert enum: %s to string", name))
+			return fmt.Errorf("can't convert enum: %s to string", name)
+		}
+
+		quotes[nameStr] = quote
+	}
+	return stream.SendAndClose(&randquotev1.SeveralCharacterQuotesResponse{Quotes: quotes})
+}
+
+func (q QuotesServer) QuotesChat(stream randquotev1.RandQuotes_QuotesChatServer) error {
+	name, err := stream.Recv()
+	if err != nil {
+		fmt.Println(fmt.Errorf("can't receive message"))
+		return fmt.Errorf("can't receive message")
+	}
+	if name.Name != randquotev1.Name_CLOSE_CONNECTION {
+		quote, err := pkg.ReturnQuote(name.Name)
+		if err != nil {
+			return nil
+		}
+		err = stream.Send(&randquotev1.QuotesChatResponse{Quote: quote})
+		if err != nil {
+			fmt.Println(fmt.Errorf("can't send message: %s to stream", quote))
+			return fmt.Errorf("can't send message: %s to stream", quote)
+		}
+
+		err = q.QuotesChat(stream)
+		if err != nil {
+			fmt.Println(fmt.Errorf("can't continue stream"))
+			return fmt.Errorf("can't continue stream")
+		}
 	}
 
 	return nil

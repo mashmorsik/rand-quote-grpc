@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	randquotev1 "github.com/mashmorsik/rand-quote-grpc/api/proto/github.com/mashmorsik/rand-quote-grpc"
 	"gopkg.in/yaml.v3"
 	"math/rand"
 	"os"
@@ -13,7 +14,7 @@ type Data struct {
 	Quotes map[string][]string `yaml:"Quotes"`
 }
 
-func ReturnQuote(name string) (string, error) {
+func ReturnQuote(enum randquotev1.Name) (string, error) {
 	q := Data{}
 	var randQuote string
 
@@ -27,7 +28,7 @@ func ReturnQuote(name string) (string, error) {
 		return err.Error(), fmt.Errorf("can't unmarshal data file: %s", dataPath)
 	}
 
-	nameStr, err := EnumMatcher(name)
+	nameStr, err := EnumMatcher(enum)
 
 	for character, _ := range q.Quotes {
 		if character == nameStr {
@@ -38,7 +39,7 @@ func ReturnQuote(name string) (string, error) {
 	return randQuote, nil
 }
 
-func ReturnQuotesList(name string) ([]string, error) {
+func ReturnQuotesList(enum randquotev1.Name) ([]string, error) {
 	q := Data{}
 	var quotesList []string
 
@@ -52,7 +53,7 @@ func ReturnQuotesList(name string) ([]string, error) {
 		return nil, fmt.Errorf("can't unmarshal data file: %s", dataPath)
 	}
 
-	nameStr, err := EnumMatcher(name)
+	nameStr, err := EnumMatcher(enum)
 
 	for character, quotes := range q.Quotes {
 		if character == nameStr {
@@ -63,23 +64,23 @@ func ReturnQuotesList(name string) ([]string, error) {
 	return quotesList, nil
 }
 
-func EnumMatcher(enumStr string) (string, error) {
-	enumName := map[string]string{
-		"NAME_ALBUS_DUMBLEDORE":     "Albus Dumbledore",
-		"NAME_HERMIONE_GRANGER":     "Hermione Granger",
-		"NAME_RON_WEASLEY":          "Ron Weasley",
-		"NAME_SEVERUS_SNAPE":        "Severus Snape",
-		"NAME_PROFESSOR_MCGONAGALL": "Professor McGonagall",
-		"NAME_LUNA_LOVEGOOD":        "Luna Lovegood",
-		"NAME_HAGRID":               "Hagrid",
+func EnumMatcher(enum randquotev1.Name) (string, error) {
+	enumName := map[randquotev1.Name]string{
+		randquotev1.Name_ALBUS_DUMBLEDORE:     "Albus Dumbledore",
+		randquotev1.Name_HERMIONE_GRANGER:     "Hermione Granger",
+		randquotev1.Name_RON_WEASLEY:          "Ron Weasley",
+		randquotev1.Name_SEVERUS_SNAPE:        "Severus Snape",
+		randquotev1.Name_PROFESSOR_MCGONAGALL: "Professor McGonagall",
+		randquotev1.Name_LUNA_LOVEGOOD:        "Luna Lovegood",
+		randquotev1.Name_HAGRID:               "Hagrid",
 	}
 
-	var nameStr string
+	var name string
 
-	for enum, _ := range enumName {
-		if enum == enumStr {
-			nameStr = enumName[enum]
+	for e, _ := range enumName {
+		if e == enum {
+			name = enumName[e]
 		}
 	}
-	return nameStr, nil
+	return name, nil
 }
