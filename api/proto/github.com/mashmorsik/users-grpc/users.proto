@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package github.com.mashmorsik.rand.quote.grpc.v1;
+
+option go_package = "github.com/mashmorsik/users-grpc;randquotev1";
+
+// FIXME change when internal/pkg/users will be ready
+
+service Users {
+  rpc CreateUser(CreateUserRequest) returns(CreateUserResponse);
+  rpc GetUser(GetUserRequest) returns(GetUserResponse);
+  rpc UpdateUser(UpdateUserRequest) returns(UpdateUserResponse);
+  rpc DeleteUser(DeleteUserRequest) returns(DeleteUserResponse);
+}
+
+message CreateUserRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message CreateUserResponse {
+  string token = 1;
+}
+
+message GetUserRequest {
+  int32 id = 1;
+}
+
+message GetUserResponse {
+  string name = 1;
+  string email = 2;
+}
+
+message UpdateUserRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message UpdateUserResponse {
+  string token = 1;
+}
+
+message DeleteUserRequest {
+  int32 id = 1;
+}
+
+message DeleteUserResponse {
+  bool isDeleted = 1;
+}
