@@ -1,10 +1,10 @@
-package handlers
+package quote
 
 import (
 	"context"
 	"fmt"
 	randquotev1 "github.com/mashmorsik/rand-quote-grpc/api/proto/github.com/mashmorsik/rand-quote-grpc"
-	"github.com/mashmorsik/rand-quote-grpc/internal/pkg"
+	"github.com/mashmorsik/rand-quote-grpc/internal/quote"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -20,7 +20,7 @@ func (q QuotesServer) GetQuote(ctx context.Context, req *randquotev1.RandQuoteRe
 	}
 
 	name := req.GetName()
-	quote, err := pkg.ReturnQuote(name)
+	quote, err := quote.ReturnQuote(name)
 	if err != nil {
 		return nil, fmt.Errorf("can't find quote by %s", name)
 	}
@@ -38,7 +38,7 @@ func (q QuotesServer) ListQuotes(req *randquotev1.ListQuotesRequest, stream rand
 	name := req.GetName()
 	ctx := stream.Context()
 
-	quotes, err := pkg.ReturnQuotesList(name)
+	quotes, err := quote.ReturnQuotesList(name)
 	if err != nil {
 		fmt.Println(fmt.Errorf("can't find quote by %s", name))
 		return fmt.Errorf("can't find quote by %s", name)
@@ -81,19 +81,19 @@ func (q QuotesServer) GetSeveralCharactersQuotes(stream randquotev1.RandQuotes_G
 
 		fmt.Println(name)
 
-		quote, err := pkg.ReturnQuote(name.Name)
+		rQuote, err := quote.ReturnQuote(name.Name)
 		if err != nil {
-			fmt.Println(fmt.Errorf("can't find quote by %s", name))
-			return fmt.Errorf("can't find quote by %s", name)
+			fmt.Println(fmt.Errorf("can't find rQuote by %s", name))
+			return fmt.Errorf("can't find rQuote by %s", name)
 		}
 
-		nameStr, err := pkg.EnumMatcher(name.Name)
+		nameStr, err := quote.EnumMatcher(name.Name)
 		if err != nil {
 			fmt.Println(fmt.Errorf("can't convert enum: %s to string", name))
 			return fmt.Errorf("can't convert enum: %s to string", name)
 		}
 
-		quotes[nameStr] = quote
+		quotes[nameStr] = rQuote
 	}
 	return stream.SendAndClose(&randquotev1.SeveralCharacterQuotesResponse{Quotes: quotes})
 }
@@ -105,7 +105,7 @@ func (q QuotesServer) QuotesChat(stream randquotev1.RandQuotes_QuotesChatServer)
 		return fmt.Errorf("can't receive message")
 	}
 	if name.Name != randquotev1.Name_CLOSE_CONNECTION {
-		quote, err := pkg.ReturnQuote(name.Name)
+		quote, err := quote.ReturnQuote(name.Name)
 		if err != nil {
 			return nil
 		}

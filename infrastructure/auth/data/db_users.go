@@ -3,9 +3,15 @@ package data
 import (
 	"database/sql"
 	"errors"
-	"github.com/mashmorsik/rand-quote-grpc/auth"
-	"github.com/mashmorsik/rand-quote-grpc/logger"
+	_ "github.com/lib/pq"
+	"github.com/mashmorsik/rand-quote-grpc/pkg/log"
 )
+
+type User struct {
+	Id       int
+	Email    string
+	Password string
+}
 
 type Data struct {
 	db *sql.DB
@@ -23,7 +29,7 @@ func (d *Data) Db() *sql.DB {
 }
 
 func MustConnect() *sql.DB {
-	connStr := "postgres://postgres:mysecretpassword@localhost:5435/rand-quote?sslmode=disable&application_name=rand-quote&connect_timeout=5"
+	connStr := "postgres://postgres:mysecretpassword@localhost:5435/rand_quote_auth?sslmode=disable&application_name=rand-quote&connect_timeout=5"
 
 	connection, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -31,13 +37,13 @@ func MustConnect() *sql.DB {
 	}
 
 	if err = connection.Ping(); err != nil {
-		logger.Nlog.Panic().Err(err)
+		log.Nlog.Panic().Err(err)
 	}
 
 	return connection
 }
 
-func (d *Data) CreateUser(u *auth.User) (int, error) {
+func (d *Data) CreateUser(u *User) (int, error) {
 	var id int
 
 	sqlCreateUser := `
@@ -46,20 +52,20 @@ func (d *Data) CreateUser(u *auth.User) (int, error) {
 
 	row, err := d.db.Query(sqlCreateUser, u.Email, u.Password)
 	if err != nil {
-		logger.Nlog.Error().Msgf("can't send query: %s", sqlCreateUser)
+		log.Nlog.Error().Msgf("can't send query: %s", sqlCreateUser)
 		return 0, err
 	}
 
 	if row.Next() {
 		if err = row.Scan(&id); err != nil {
-			logger.Nlog.Error().Msgf("can't scan rows: %v and get userId", row)
+			log.Nlog.Error().Msgf("can't scan rows: %v and get userId", row)
 			return 0, err
 		}
 	}
 	return id, nil
 }
 
-func (d *Data) IsUser(u *auth.User) (bool, error) {
+func (d *Data) IsUser(u *User) (bool, error) {
 	var result bool
 
 	sqlGetUserId := `
@@ -71,25 +77,25 @@ func (d *Data) IsUser(u *auth.User) (bool, error) {
 	if errors.Is(err, sql.ErrNoRows) {
 		return false, nil
 	} else if err != nil {
-		logger.Nlog.Error().Msgf("can't check if user exists %s", err)
+		log.Nlog.Error().Msgf("can't check if user exists %s", err)
 		return false, nil
 	}
 
 	return true, nil
 }
 
-func (d *Data) GetUser(u *auth.User) (int, error) {
+func (d *Data) GetUser(u *User) (int, error) {
 	var id int
 
 	sqlGetUserId := `
-	SELECT * FROM users
+	SELECT id FROM users
 	WHERE email = ($1) and password = ($2)`
 
 	row, err := d.db.Query(sqlGetUserId, u.Email, u.Password)
 	if row.Next() {
 		err = row.Scan(&id)
 		if err != nil {
-			logger.Nlog.Error().Msgf("can't scan rows: %v and get userId", row)
+			log.Nlog.Error().Msgf("can't scan rows: %v and get userId", row)
 			return 0, err
 		}
 	}

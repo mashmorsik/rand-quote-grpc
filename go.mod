@@ -3,18 +3,21 @@ module github.com/mashmorsik/rand-quote-grpc
 go 1.21
 
 require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/lib/pq v1.10.9
+	github.com/pkg/errors v0.9.1
+	github.com/rs/zerolog v1.32.0
+	golang.org/x/sync v0.5.0
 	google.golang.org/grpc v1.61.0
 	google.golang.org/protobuf v1.32.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
-	github.com/rs/zerolog v1.32.0 // indirect
 	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect

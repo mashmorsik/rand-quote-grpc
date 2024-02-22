@@ -1,4 +1,4 @@
-package logger
+package log
 
 import (
 	"github.com/rs/zerolog"
@@ -14,4 +14,16 @@ func Logger() {
 	).Level(zerolog.TraceLevel).With().Timestamp().Caller().Logger()
 
 	Nlog = &logger
+}
+
+func Errf(format string, v ...interface{}) {
+	Nlog.Error().Msgf(format, v...)
+}
+
+func Infof(format string, v ...interface{}) {
+	Nlog.Info().Msgf(format, v...)
+}
+
+func Fatalf(format string, v ...interface{}) {
+	Nlog.Fatal().Msgf(format, v...)
 }
