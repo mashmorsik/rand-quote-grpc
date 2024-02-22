@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package github.com.mashmorsik.rand.quote.grpc.v1;
+
+option go_package = "github.com/mashmorsik/auth-grpc;randquotev1";
+
+service Auth {
+  rpc UserAuth(UserAuthRequest) returns(UserAuthResponse);
+}
+
+message UserAuthRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message UserAuthResponse {
+  string token = 1;
+}
